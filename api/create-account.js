@@ -23,7 +23,7 @@ export default async function handler(req, res) {
     }
 
     const response = await fetch(
-      "https://api.afrixapay.com/api/v1/checkout/virtual-account",
+      "https://afrixapay.com/api/v1/checkout/virtual-account",
       {
         method: "POST",
         headers: {
