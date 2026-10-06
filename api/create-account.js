@@ -27,8 +27,9 @@ export default async function handler(req, res) {
       {
         method: "POST",
         headers: {
-          "Authorization": process.env.AFRIXAPAY_SECRET_KEY,
-          "Content-Type": "application/json"
+          "Authorization": `Bearer ${process.env.AFRIXAPAY_SECRET_KEY}`,
+          "Content-Type": "application/json",
+          "Accept": "application/json"
         },
         body: JSON.stringify({
           amount,
