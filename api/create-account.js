@@ -1,5 +1,36 @@
 export default async function handler(req, res) {
-  // Only allow POST requests
+
+  /* =========================================
+  CORS
+  ========================================= */
+
+  res.setHeader(
+    "Access-Control-Allow-Origin",
+    "*"
+  );
+
+  res.setHeader(
+    "Access-Control-Allow-Methods",
+    "POST, OPTIONS"
+  );
+
+  res.setHeader(
+    "Access-Control-Allow-Headers",
+    "Content-Type"
+  );
+
+  /* =========================================
+  PREFLIGHT REQUEST
+  ========================================= */
+
+  if (req.method === "OPTIONS") {
+    return res.status(204).end();
+  }
+
+  /* =========================================
+  ONLY POST
+  ========================================= */
+
   if (req.method !== "POST") {
     return res.status(405).json({
       status: false,
@@ -8,6 +39,7 @@ export default async function handler(req, res) {
   }
 
   try {
+
     const {
       amount,
       customer_name,
@@ -16,24 +48,42 @@ export default async function handler(req, res) {
       title
     } = req.body;
 
-    // Validate required fields
-    if (!amount || !customer_name || !customer_email) {
+    /* =========================================
+    VALIDATION
+    ========================================= */
+
+    if (
+      !amount ||
+      !customer_name ||
+      !customer_email
+    ) {
       return res.status(400).json({
         status: false,
-        message: "Amount, customer name and customer email are required"
+        message:
+          "Amount, customer name and customer email are required"
       });
     }
 
-    // Request virtual account from AfrixaPay
+    /* =========================================
+    AFRIXAPAY REQUEST
+    ========================================= */
+
     const response = await fetch(
       "https://afrixapay.com/api/v1/checkout/virtual-account",
       {
         method: "POST",
+
         headers: {
-          "Authorization": `Bearer ${process.env.AFRIXAPAY_SECRET_KEY}`,
-          "Content-Type": "application/json",
-          "Accept": "application/json"
+          "Authorization":
+            `Bearer ${process.env.AFRIXAPAY_SECRET_KEY}`,
+
+          "Content-Type":
+            "application/json",
+
+          "Accept":
+            "application/json"
         },
+
         body: JSON.stringify({
           amount,
           customer_name,
@@ -44,18 +94,32 @@ export default async function handler(req, res) {
       }
     );
 
-    const data = await response.json();
+    const data =
+      await response.json();
 
-    // Return AfrixaPay response to the frontend
-    return res.status(response.status).json(data);
+    /* =========================================
+    RETURN AFRIXAPAY RESPONSE
+    ========================================= */
 
-  } catch (error) {
-    console.error("AfrixaPay backend error:", error);
+    return res
+      .status(response.status)
+      .json(data);
 
-    // Don't expose internal error details to the frontend
+  }
+
+  catch (error) {
+
+    console.error(
+      "AfrixaPay backend error:",
+      error
+    );
+
     return res.status(500).json({
       status: false,
-      message: "Unable to generate payment account"
+      message:
+        "Unable to generate payment account"
     });
+
   }
+
 }
