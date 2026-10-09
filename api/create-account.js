@@ -104,8 +104,8 @@ export default async function handler(req, res) {
 
     // Log status, never log the secret key
     console.log("AfrixaPay HTTP status:", response.status);
-    console.log("AfrixaPay success:", data.status);
-
+console.log("AfrixaPay response:", JSON.stringify(data));
+    
     return res.status(response.status).json(data);
 
   } catch (error) {
